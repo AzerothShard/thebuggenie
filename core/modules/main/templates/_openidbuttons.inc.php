@@ -37,9 +37,9 @@
             url : null
         },
         wordpress : {
-            name : 'Wordpress',
-            label : '<?php echo htmlspecialchars(__('Enter your Wordpress.com username'), ENT_QUOTES, \thebuggenie\core\framework\Context::getI18n()->getCharset()); ?>',
-            url : 'http://{username}.wordpress.com/'
+            name : 'AzerothShard',
+            label : '<?php echo htmlspecialchars(__('Enter your AzerothShard username'), ENT_QUOTES, \thebuggenie\core\framework\Context::getI18n()->getCharset()); ?>',
+            url : 'http://azerothshard.ga/author/{username}'
         },
         launchpad: {
             name: 'Launchpad',
