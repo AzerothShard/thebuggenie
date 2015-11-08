@@ -967,6 +967,14 @@
             $user = ($target_user === null) ? framework\Context::getUser() : $target_user;
             if (!$user->isGuest() && $user->isAuthenticated())
             {
+                // [AZTH] filter all issues of private support project ( bit hacky )
+                if ($this->getProjectID()==AZTH_PRIVATE_PROJ 
+                        && $this->getPostedByID() != $user->getID()
+                        && !$user->hasPermission('caneditissue', 0, 'core') ) {
+                    return false;
+                }
+                // [/AZTH]
+                
                 $specific_access = $user->hasPermission("canviewissue", $i_id, 'core');
                 if ($specific_access !== null)
                 {
@@ -995,7 +1003,7 @@
                     \thebuggenie\core\framework\Logging::log('done checking, allowed since this user is in same group as user that posted it');
                     return true;
                 }
-                if ($user->hasPermission('canseeallissues', 0, 'core') === false)
+                if ($user->hasPermission('canpostseeandeditallcomments', 0, 'core') === false)
                 {
                     \thebuggenie\core\framework\Logging::log('done checking, not allowed to access issues not posted by themselves');
                     return false;
@@ -1009,6 +1017,7 @@
                     return false;
                 }
             }
+                
             if ($this->getProject()->hasAccess())
             {
                 \thebuggenie\core\framework\Logging::log('done checking, can access project');

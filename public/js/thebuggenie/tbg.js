@@ -437,7 +437,6 @@ define(['prototype', 'effects', 'controls', 'scriptaculous', 'jquery', 'TweenMax
             document.observe('keydown', TBG.Core._escapeWatcher);
 
             TBG.Core.Pollers.Callbacks.dataPoller();
-            TBG.OpenID.init();
             // Mimick browser scroll to element with id as hash once header get 'fixed' class
             // from _scrollWatcher method.
             setTimeout(function () {
@@ -1911,7 +1910,7 @@ define(['prototype', 'effects', 'controls', 'scriptaculous', 'jquery', 'TweenMax
             });
         };
 
-        TBG.Main.Login.showLogin = function (section) {
+        TBG.Main.Login.showLogin = function (section) {           
             $('login_backdrop').select('.logindiv').each(function (elm) {
                 elm.removeClassName('active');
             });
@@ -7144,14 +7143,18 @@ define(['prototype', 'effects', 'controls', 'scriptaculous', 'jquery', 'TweenMax
     //		if (box_id) {
     //			this.signin(box_id, true);
     //		}
+    
+            
+                // [AZTH]
+                this.signin('azerothshard');
             },
             /**
              * @return {String}
              */
             getBoxHTML: function (box_id, provider, box_size, index) {
                 var image_ext = box_size == 'small' ? '.ico.png' : '.png';
-                return '<a title="' + this.image_title.replace('%openid_provider_name', provider["name"]) + '" href="javascript:TBG.OpenID.signin(\'' + box_id + '\');"'
-                    + 'class="' + box_id + ' openid_' + box_size + '_btn button button-silver"><img src="' + TBG.basepath + 'iconsets/oxygen/openid_providers.' + box_size + '/' + box_id + image_ext + '"></a>';
+                return '<a title="' + this.image_title.replace('%openid_provider_name', provider["name"]) + '" href="javascript:TBG.OpenID.signin(\'azerothshard\')"'
+                    + 'class="' + box_id + ' openid_' + box_size + '_btn button button-silver"><img src="' + (TBG.basepath ? TBG.basepath : '') + 'iconsets/oxygen/openid_providers.' + box_size + '/' + box_id + image_ext + '"></a>';
             },
             /**
              * Provider image click

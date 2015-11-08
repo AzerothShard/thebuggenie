@@ -891,7 +891,7 @@ class Main extends framework\Action
                                 $user->setBuddyname($attributes['namePerson/friendly']);
 
                             if (!$user->getNickname() || $user->isOpenIdLocked())
-                                $user->setBuddyname($user->getEmail());
+                                $user->setBuddyname($user->getUsername());
                             if (!$user->getRealname())
                                 $user->setRealname($user->getBuddyname());
 

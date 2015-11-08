@@ -30,7 +30,7 @@
                     </div>
                 </li>
         <?php endif; ?>
-        <?php if (framework\Context::isProjectContext() && $tbg_user->canSearchForIssues()): ?>
+        <?php if (framework\Context::isProjectContext() && $tbg_user->canSearchForIssues() /* [azth] */ && !framework\Context::getCurrentProject()->isLocked()  ): ?>
             <li<?php if (in_array($tbg_response->getPage(), array('project_issues', 'viewissue'))): ?> class="selected"<?php endif; ?>>
                 <div class="menuitem_container">
                     <?php echo link_tag(make_url('project_issues', array('project_key' => framework\Context::getCurrentProject()->getKey())), image_tag('tab_search.png') . __('Issues')); ?>

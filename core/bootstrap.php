@@ -25,3 +25,6 @@
     defined('THEBUGGENIE_MODULES_PATH') || define('THEBUGGENIE_MODULES_PATH', THEBUGGENIE_PATH . 'modules' . DS);
 
     \thebuggenie\core\framework\Context::initialize();
+    
+    // [AZTH]
+    require_once "../azth/bootstrap.php";

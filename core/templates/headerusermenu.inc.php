@@ -22,7 +22,7 @@
         <li<?php if ($tbg_request->hasCookie('tbg3_original_username')): ?> class="temporarily_switched"<?php endif; ?> id="header_usermenu_link">
             <div id="header_userinfo_details">
                 <?php if ($tbg_user->isGuest()): ?>
-                    <a href="javascript:void(0);" <?php if (\thebuggenie\core\framework\Context::getRouting()->getCurrentRouteName() != 'login_page'): ?>onclick="TBG.Main.Login.showLogin('regular_login_container');"<?php endif; ?>><?php echo image_tag($tbg_user->getAvatarURL(true), array('alt' => '[avatar]', 'class' => 'guest_avatar'), true) . __('You are not logged in'); ?></a>
+                    <a href="javascript:void(0);" <?php if (\thebuggenie\core\framework\Context::getRouting()->getCurrentRouteName() != 'login_page'): ?>onclick="TBG.Main.Login.showLogin('openid_container');"<?php endif; ?>><?php echo image_tag($tbg_user->getAvatarURL(true), array('alt' => '[avatar]', 'class' => 'guest_avatar'), true) . __('You are not logged in'); ?></a>
                 <?php else: ?>
                     <?php echo link_tag(make_url('dashboard'), image_tag($tbg_user->getAvatarURL(true), array('alt' => '[avatar]', 'id' => 'header_avatar'), true) . '<span id="header_user_fullname">'.tbg_decodeUTF8($tbg_user->getDisplayName()).'</span>'); ?>
                 <?php endif; ?>
@@ -34,9 +34,9 @@
                 <?php if (\thebuggenie\core\framework\Event::createNew('core', 'header_usermenu_decider')->trigger()->getReturnValue() !== false): ?>
                     <div class="tab_menu_dropdown user_menu_dropdown" id="user_menu">
                         <?php if ($tbg_user->isGuest()): ?>
-                            <a href="javascript:void(0);" onclick="TBG.Main.Login.showLogin('regular_login_container');"><?php echo image_tag('icon_login.png').__('Login'); ?></a>
+                            <a href="javascript:void(0);" onclick="TBG.Main.Login.showLogin('openid_container');"><?php echo image_tag('icon_login.png').__('Login'); ?></a>
                             <?php if (\thebuggenie\core\framework\Settings::isRegistrationAllowed()): ?>
-                                <a href="javascript:void(0);" onclick="TBG.Main.Login.showLogin('register');"><?php echo image_tag('icon_register.png').__('Register'); ?></a>
+                                <a href="http://azerothshard.ga/registration/"><?php echo image_tag('icon_register.png').__('Register'); ?></a>
                             <?php endif; ?>
                             <?php \thebuggenie\core\framework\Event::createNew('core', 'user_dropdown_anon')->trigger(); ?>
                         <?php else: ?>

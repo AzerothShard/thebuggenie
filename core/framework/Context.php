@@ -1589,6 +1589,9 @@ class Context
         $uid = (int) $uid;
         $gid = (int) $gid;
         $retval = null;
+        if (!$target_id)
+            $target_id = self::getCurrentProject()->getID();
+        
         if (array_key_exists($module_name, self::$_permissions) &&
                 array_key_exists($permission_type, self::$_permissions[$module_name]))
         {

@@ -9,7 +9,7 @@
     });
 
 </script>
-<div class="logindiv regular active" id="regular_login_container">
+<div class="logindiv regular" id="regular_login_container">
     <?php if ($loginintro instanceof \thebuggenie\modules\publish\entities\Article): ?>
         <?php include_component('publish/articledisplay', array('article' => $loginintro, 'show_title' => false, 'show_details' => false, 'show_actions' => false, 'embedded' => true)); ?>
     <?php endif; ?>
@@ -44,11 +44,50 @@
             <fieldset style="border: 0; border-top: 1px dotted rgba(0, 0, 0, 0.3); padding: 10px 100px; width: 100px; margin: 15px auto 0 auto;">
                 <legend style="text-align: center; width: 100%; background-color: transparent;"><?php echo __('%regular_login or %persona_or_openid_login', array('%regular_login' => '', '%persona_or_openid_login' => '')); ?></legend>
             </fieldset>
-            <?php if (\thebuggenie\core\framework\Settings::isPersonaAvailable()): ?>
+            <style type="text/css">
+                .black{
+                    background: -moz-linear-gradient(top, #282A2B, #797C7D);
+                    background: -ms-linear-gradient(top, #282A2B, #797C7D);
+                    background: -o-linear-gradient(top, #282A2B, #797C7D);
+                    background: -webkit-linear-gradient(top, #282A2B, #797C7D);
+                    background: linear-gradient(top, #282A2B, #797C7D);
+                }
+                
+                .black:hover{
+                    background: -moz-linear-gradient(top, #797C7D, #282A2B);
+                    background: -ms-linear-gradient(top, #797C7D, #282A2B);
+                    background: -o-linear-gradient(top, #797C7D, #282A2B);
+                    background: -webkit-linear-gradient(top, #797C7D, #282A2B);
+                    background: linear-gradient(top, #797C7D, #282A2B);
+                }
+                
+                .black.persona-button span:before{
+                    content: '';
+                    background: #282A2B;
+                    background: -moz-linear-gradient(top, #282A2B, #797C7D);
+                    background: -ms-linear-gradient(top, #282A2B, #797C7D);
+                    background: -o-linear-gradient(top, #282A2B, #797C7D);
+                    background: -webkit-linear-gradient(top, #282A2B, #797C7D);
+                    background: linear-gradient(top, #282A2B, #797C7D);
+                }
+                
+                .black.persona-button:before{
+                    content: '';
+                    background: #282A2B;
+                    background: -moz-linear-gradient(top, #282A2B, #797C7D);
+                    background: -ms-linear-gradient(top, #282A2B, #797C7D);
+                    background: -o-linear-gradient(top, #282A2B, #797C7D);
+                    background: -webkit-linear-gradient(top, #282A2B, #797C7D);
+                    background: linear-gradient(top, #282A2B, #797C7D);
+                }
+                
+                
+            </style>
+            <?php /*if (\thebuggenie\core\framework\Settings::isPersonaAvailable()): ?>
                 <a class="persona-button" id="persona-signin-button" href="#"><span><?php echo __('Sign in with Persona'); ?></span></a>
-            <?php endif; ?>
+            <?php endif; */?>
             <?php if (\thebuggenie\core\framework\Settings::isOpenIDavailable()): ?>
-                <a class="persona-button orange" id="openid-signin-button" href="javascript:void(0);" onclick="$('regular_login_container').toggleClassName('active');$('openid_container').toggleClassName('active');"><span><?php echo __('Sign in with OpenID'); ?></span></a>
+                <a class="persona-button black" id="azerothshard-signin-button" href="javascript:void(0);" onclick="$('regular_login_container').toggleClassName('active');$('openid_container').toggleClassName('active');"><span><?php echo __('Sign in with AzerothShard ID'); ?></span></a>
             <?php endif; ?>
         </div>
     <?php endif; ?>
@@ -62,7 +101,7 @@
         <fieldset style="border: 0; border-top: 1px dotted rgba(0, 0, 0, 0.3); padding: 5px 100px; width: 100px; margin: 5px auto 0 auto;">
             <legend style="text-align: center; width: 100%; background-color: transparent;"><?php echo __('%login or %signup', array('%login' => '', '%signup' => '')); ?></legend>
         </fieldset>
-        <a href="javascript:void(0);" id="create-account-button" onclick="$('register').addClassName('active');$('registration-button-container').removeClassName('active');$('regular_login_container').removeClassName('active');$('openid_container').removeClassName('active');"><?php echo __('Create an account'); ?></a>
+        <a href="http://azerothshard.ga/registration/" id="create-account-button"><?php echo __('Create an account'); ?></a>
     </div>
     <?php include_component('main/loginregister', compact('registrationintro')); ?>
 <?php endif; ?>
@@ -75,3 +114,4 @@
         });
     </script>
 <?php endif; ?>
+

@@ -50,6 +50,12 @@
                 <input type="search" name="fs[text][v]" accesskey="f" id="searchfor" placeholder="<?php echo __('Search for anything here'); ?>"><div id="searchfor_autocomplete_choices" class="autocomplete rounded_box"></div>
                 <input type="submit" class="button-blue" id="quicksearch_submit" value="<?php echo \thebuggenie\core\framework\Context::getI18n()->__('Find'); ?>">
             </div>
+            <!-- [azth] -->
+            <div data-filterkey="subprojects" data-value="all" data-all-value="All">
+                <input type="hidden" name="fs[subprojects][o]" value="=">
+                <input type="hidden" name="fs[subprojects][v]" value="all" id="filter_subprojects_value_input">
+            </div>
+            <!-- [/azth] -->
         </form>
     <?php endif; ?>
 </nav>

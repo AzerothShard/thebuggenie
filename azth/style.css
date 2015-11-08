@@ -1,0 +1,10 @@
+/*
+  AZTH
+*/
+
+.milestone_percentage, .issue_percentage {
+    height: 10px !important;
+}
+.milestone_percentage .filler, .issue_percentage .filler {
+    height: 9px !important;
+}

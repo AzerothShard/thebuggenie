@@ -787,7 +787,7 @@ footer img { margin: 0 3px -3px 0; }
 .comment_visibilitybox { width: 100%; margin-bottom: 8px; }
 .system_comment .comment_main { background-color: #F7F7F7; border: 1px solid #DDD; }
 .private_comment .comment_main { background-color: #E8F6E8; border: 1px solid #D8E6D8; }
-.comment_editor { position: fixed; width: 650px; z-index: 120; padding: 10px; bottom: 5px; right: 5px; box-shadow: 0 0 5px rgba(0, 0, 0, 0.3); background-color: #FFF; border: 0; }
+.comment_editor { position: fixed; width: 650px; z-index: 1200; padding: 10px; bottom: 5px; right: 5px; box-shadow: 0 0 5px rgba(0, 0, 0, 0.3); background-color: #FFF; border: 0; }
 .comment_editor .typeahead.dropdown-menu { overflow-y: scroll; max-height: 100px; }
 
 .commit_header { font-size: larger; }
@@ -2079,7 +2079,7 @@ ul.workflow_actions li:hover { box-shadow: 0 0 2px rgba(0, 0, 0, 0.2); -webkit-b
 /* issue extra data (pain and votes) - includes search result styling */
 #viewissue_header_container
 {
-    position: relative;
+    position: static;
     margin: 0 10px; z-index: 1000;
     -webkit-transition: margin-left 0.3s ease-in-out, margin-right 0.3s ease-in-out;
     -moz-transition: margin-left 0.3s ease-in-out, margin-right 0.3s ease-in-out;

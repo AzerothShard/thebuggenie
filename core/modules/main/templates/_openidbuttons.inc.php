@@ -1,7 +1,20 @@
-<div class="logindiv openid_container" id="openid_container" style="<?php if (isset($mode) && $mode == 'add_signin') echo 'display: block;'; ?>">
+<style type="text/css">
+    #openid_btns > a{
+        margin-right:0 !important;
+        margin: auto !important;
+        display: block;
+        background: -webkit-linear-gradient(top,#484848,#2d2d2d);
+        background: -moz-linear-gradient(top,#484848,#2d2d2d);
+        background: -ms-linear-gradient(top,#484848,#2d2d2d);
+        background: -o-linear-gradient(top,#484848,#2d2d2d);
+        background: -webkit-linear-gradient(top,#484848,#2d2d2d);
+        background: linear-gradient(top,#484848,#2d2d2d);
+    }
+</style>
+<div class="logindiv openid_container active" id="openid_container" style="<?php if (isset($mode) && $mode == 'add_signin') echo 'display: block;'; ?>">
     <form action="<?php echo make_url('login'); ?>" method="post" id="openid_form" onsubmit="return TBG.OpenID.submit();">
         <?php if ($openidintro instanceof \thebuggenie\modules\publish\entities\Article): ?>
-            <?php include_component('publish/articledisplay', array('article' => $openidintro, 'show_title' => false, 'show_details' => false, 'show_actions' => false, 'embedded' => true)); ?>
+            <?php //include_component('publish/articledisplay', array('article' => $openidintro, 'show_title' => false, 'show_details' => false, 'show_actions' => false, 'embedded' => true)); ?>
         <?php endif; ?>
         <input type="hidden" name="action" value="verify" />
         <div id="openid_choice">
@@ -18,16 +31,15 @@
         <fieldset style="border: 0; border-top: 1px dotted rgba(0, 0, 0, 0.3); padding: 10px 100px; width: 100px; margin: 20px auto 0 auto;">
             <legend style="text-align: center; width: 100%; background-color: transparent;"><?php echo __('%regular_login or %persona_or_openid_login', array('%regular_login' => '', '%persona_or_openid_login' => '')); ?></legend>
         </fieldset>
-        <?php if (\thebuggenie\core\framework\Settings::isPersonaAvailable()): ?>
+        <?php /*if (\thebuggenie\core\framework\Settings::isPersonaAvailable()): ?>
             <a class="persona-button" id="persona-signin-button" href="#"><span><?php echo __('Sign in with Persona'); ?></span></a>
-        <?php endif; ?>
-        <a class="persona-button dark" id="regular-signin-button" href="javascript:void(0);" onclick="$('regular_login_container').toggleClassName('active');$('openid_container').toggleClassName('active');"><span><?php echo __('Regular signin'); ?></span></a>
+        <?php endif; */ ?>
+        <a class="persona-button dark" id="regular-signin-button" href="javascript:void(0);" onclick="$('regular_login_container').toggleClassName('active');$('openid_container').toggleClassName('active');"><span><?php echo __('Admin login'); ?></span></a>
     </div>
 </div>
 <script type="text/javascript">
-
     var providers_large = {
-        google : {
+       /* google : {
             name : 'Google',
             url : 'https://www.google.com/accounts/o8/id'
         },
@@ -35,21 +47,21 @@
             name : 'OpenID',
             label : '<?php echo htmlspecialchars(__('Enter your OpenID'), ENT_QUOTES, \thebuggenie\core\framework\Context::getI18n()->getCharset()); ?>',
             url : null
-        },
-        wordpress : {
-            name : 'Wordpress',
-            label : '<?php echo htmlspecialchars(__('Enter your Wordpress.com username'), ENT_QUOTES, \thebuggenie\core\framework\Context::getI18n()->getCharset()); ?>',
-            url : 'http://{username}.wordpress.com/'
-        },
+        },*/
+        azerothshard : {
+            name : 'AzerothShard',
+            label : '<?php echo htmlspecialchars(__('Enter your AzerothShard username'), ENT_QUOTES, \thebuggenie\core\framework\Context::getI18n()->getCharset()); ?>',
+            url : 'http://azerothshard.ga/author/{username}'
+        }/*,
         launchpad: {
             name: 'Launchpad',
             label : '<?php echo htmlspecialchars(__('Your Launchpad username'), ENT_QUOTES, \thebuggenie\core\framework\Context::getI18n()->getCharset()); ?>',
             url: 'https://launchpad.net/~{username}'
-        }
+        }*/
     };
 
     var providers_small = {
-        yahoo : {
+       /* yahoo : {
             name : 'Yahoo',
             url : 'http://me.yahoo.com/'
         },
@@ -102,7 +114,7 @@
             name : 'Google Profile',
             label : '<?php echo htmlspecialchars(__('Enter your Google Profile username'), ENT_QUOTES, \thebuggenie\core\framework\Context::getI18n()->getCharset()); ?>',
             url : 'http://www.google.com/profiles/{username}'
-        }
+        }*/
     };
 
     require(['thebuggenie/tbg'], function (TBG) {
@@ -111,7 +123,8 @@
         TBG.OpenID.providers_small = providers_small;
         TBG.OpenID.providers_large = providers_large;
         <?php if ($tbg_request->isAjaxCall()): ?>
-            TBG.OpenID.init();
+            //TBG.OpenID.init();
         <?php endif; ?>
+        TBG.OpenID.init();
     });
 </script>
