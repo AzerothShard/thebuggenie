@@ -1641,6 +1641,12 @@
             $this->_can_permission_cache[$permission] = $retval;
             return $retval;
         }
+        
+        protected function _canIssueFieldEdit($type)
+        {
+            return $this->_canPermissionOrEditIssue('caneditissue'.$type) || ( $this->isInvolved() &&  $this->_permissionCheck("set_datatype_".$type));
+        }
+
 
         /**
          * Return if the user can edit posted by
@@ -1679,7 +1685,7 @@
          */
         public function canEditStatus()
         {
-            return $this->_canPermissionOrEditIssue('caneditissuestatus');
+            return $this->_canIssueFieldEdit("status");
         }
 
         /**
@@ -1689,7 +1695,7 @@
          */
         public function canEditCategory()
         {
-            return $this->_canPermissionOrEditIssue('caneditissuecategory');
+            return $this->_canIssueFieldEdit("category");
         }
 
         /**
@@ -1699,7 +1705,7 @@
          */
         public function canEditResolution()
         {
-            return $this->_canPermissionOrEditIssue('caneditissueresolution');
+            return $this->_canIssueFieldEdit("resolution");
         }
 
         /**
@@ -1709,7 +1715,7 @@
          */
         public function canEditReproducability()
         {
-            return $this->_canPermissionOrEditIssue('caneditissuereproducability');
+            return $this->_canIssueFieldEdit("reproducability");
         }
 
         /**
@@ -1719,7 +1725,7 @@
          */
         public function canEditSeverity()
         {
-            return $this->_canPermissionOrEditIssue('caneditissueseverity');
+            return $this->_canIssueFieldEdit("severity");
         }
 
         /**
@@ -1729,7 +1735,7 @@
          */
         public function canEditPriority()
         {
-            return $this->_canPermissionOrEditIssue('caneditissuepriority');
+            return $this->_canIssueFieldEdit("priority");
         }
 
         /**
