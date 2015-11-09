@@ -3118,7 +3118,6 @@ define(['prototype', 'effects', 'controls', 'scriptaculous', 'jquery', 'TweenMax
                 milestone_list.insert({bottom: content});
             } else {
                 milestone_list.insert({top: content});
-                setTimeout(TBG.Project.Planning.sortMilestoneIssues({target: 'milestone_' + milestone_id + '_issues'}), 250);
             }
             if (recalculate == 'all') {
                 TBG.Project.Planning.calculateAllMilestonesVisibilityDetails();
@@ -3126,6 +3125,9 @@ define(['prototype', 'effects', 'controls', 'scriptaculous', 'jquery', 'TweenMax
                 TBG.Project.Planning.calculateMilestoneIssueVisibilityDetails(milestone_list);
             }
             TBG.Project.Planning.calculateNewBacklogMilestoneDetails();
+            if (milestone_id != 0) {
+                setTimeout(TBG.Project.Planning.sortMilestoneIssues({target: 'milestone_' + milestone_id + '_issues'}), 250);
+            }
         };
 
         TBG.Project.Planning.retrieveIssue = function (issue_id, url, existing_element) {
@@ -3227,7 +3229,6 @@ define(['prototype', 'effects', 'controls', 'scriptaculous', 'jquery', 'TweenMax
         };
 
         TBG.Project.Planning.calculateMilestoneIssueVisibilityDetails = function (list) {
-            console.log('TBG.Project.Planning.calculateMilestoneIssueVisibilityDetails');
             var list_issues = jQuery(list).find('.issue_container').not('.child_issue');
             var closed_issues = jQuery(list).find('.issue_container.issue_closed').not('.child_issue');
             var visible_issues = list_issues.filter(':visible');
@@ -3275,7 +3276,6 @@ define(['prototype', 'effects', 'controls', 'scriptaculous', 'jquery', 'TweenMax
         };
 
         TBG.Project.Planning.calculateAllMilestonesVisibilityDetails = function () {
-            console.log('TBG.Project.Planning.calculateAllMilestonesVisibilityDetails');
             jQuery('.milestone_box.initialized').find('.milestone_issues').each(function (index) {
                 var was_collapsed = $(this).hasClassName('collapsed');
                 $(this).removeClassName('collapsed');
@@ -6816,7 +6816,6 @@ define(['prototype', 'effects', 'controls', 'scriptaculous', 'jquery', 'TweenMax
         };
 
         TBG.Search.liveUpdate = function (force) {
-            console.log('TBG.Search.liveUpdate');
             var fif = $('find_issues_form');
             var url = fif.action;
             var parameters = fif.serialize();
