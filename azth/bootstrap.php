@@ -2,7 +2,9 @@
 
 include_once "defines.php";
 
-ini_set('display_errors',1);
+//apc_clear_cache(); // clean apc
+
+ini_set('display_errors','On');
 ini_set('display_startup_errors',1);
 error_reporting(-1);
 
