@@ -1114,7 +1114,7 @@ define(['prototype', 'effects', 'controls', 'scriptaculous', 'jquery', 'TweenMax
             }
             var progress_elm = inserted_elm.down('.progress');
             var formData = new FormData();
-            formData.append(file.name, file);
+            formData.append(file.name.replace('[', '(').replace(']', ')'), file);
 
             var xhr = new XMLHttpRequest();
             xhr.open('POST', url, true);
@@ -1675,7 +1675,7 @@ define(['prototype', 'effects', 'controls', 'scriptaculous', 'jquery', 'TweenMax
             $('comment_bodybox').focus();
         }
 
-        TBG.Main.Comment.remove = function (url, comment_id) {
+        TBG.Main.Comment.remove = function (url, comment_id, commentcount_span) {
             TBG.Main.Helpers.ajax(url, {
                 loading: {
                     indicator: 'dialog_indicator'
@@ -1685,6 +1685,7 @@ define(['prototype', 'effects', 'controls', 'scriptaculous', 'jquery', 'TweenMax
                     callback: function () {
                         TBG.Main.Helpers.Dialog.dismiss();
                         if ($('comments_box').childElements().size() == 0) $('comments_none').show();
+                        $(commentcount_span).update($('comments_box').childElements().size());
                     }
                 }
             });
@@ -2675,7 +2676,7 @@ define(['prototype', 'effects', 'controls', 'scriptaculous', 'jquery', 'TweenMax
 
             if (transition_id) parameters += '&transition_id=' + transition_id;
 
-            TBG.Main.Helpers.ajax(wb.data('whiteboard-url'), {
+            TBG.Main.Helpers.ajax($('whiteboard').dataset.whiteboardUrl, {
                 additional_params: parameters,
                 url_method: 'post',
                 loading: {
@@ -2930,6 +2931,7 @@ define(['prototype', 'effects', 'controls', 'scriptaculous', 'jquery', 'TweenMax
                             }
 
                             pc.dataset.lastRefreshed = get_current_timestamp();
+                            wb.dataset.whiteboardUrl = json.whiteboard_url;
                             TBG.Core.Pollers.Locks.planningpoller = false;
                         }
                     },

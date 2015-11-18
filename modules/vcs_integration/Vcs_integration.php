@@ -131,7 +131,7 @@
             if (framework\Context::isProjectContext() && framework\Context::getModule('vcs_integration')->getSetting('browser_type_'.framework\Context::getCurrentProject()->getID()) === 'gitlab')
             {
               $event->addToReturnList(array(
-                array('/(\![0-9])/'), function ($matches) use ($event)
+                array('/(\![0-9]+)/'), function ($matches) use ($event)
                   {
                     if (!$event->getParameter('target') instanceof Commit) return $matches[0];
 
@@ -419,7 +419,7 @@
                     }
                 }
 
-                $issue->addSystemComment(framework\Context::getI18n()->__('This issue has been updated with the latest changes from the code repository.<div class="commit_main">%commit_msg</div>', array('%commit_msg' => $commit_msg)), $user->getID(), 'vcs_integration');
+                $issue->addSystemComment(framework\Context::getI18n()->__('This issue has been updated with the latest changes from the code repository.%commit_msg', array('%commit_msg' => '<div class="commit_main">' . $commit_msg . '</div>')), $user->getID(), 'vcs_integration');
                 $output .= '[VCS ' . $project->getKey() . '] Updated issue ' . $issue->getFormattedIssueNo() . "\n";
             }
 

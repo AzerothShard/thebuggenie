@@ -1646,7 +1646,7 @@ class Main extends framework\Action
                 }
                 else
                 {
-                    if (in_array($field, entities\Datatype::getAvailableFields(true)))
+                    if (in_array($field, entities\Datatype::getAvailableFields(true)) || in_array($field, array('pain_bug_type', 'pain_likelihood', 'pain_effect')))
                     {
                         if (!$this->selected_project->fieldPermissionCheck($field))
                         {
@@ -2990,7 +2990,7 @@ class Main extends framework\Action
                 {
                     $comment = $target->attachFile($file, '', '', true);
 
-                    if ($comment instanceof entities\Comment) $comments = $this->getComponentHTML('main/comment', array('comment' => $comment, 'issue' => $target)) . $comments;
+                    if ($comment instanceof entities\Comment) $comments = $this->getComponentHTML('main/comment', array('comment' => $comment, 'issue' => $target, 'mentionable_target_type' => 'issue', 'comment_count_div' => 'viewissue_comment_count')) . $comments;
                 }
                 else
                 {
@@ -3025,6 +3025,7 @@ class Main extends framework\Action
 
         foreach ($request->getUploadedFiles() as $key => $file)
         {
+            $file['name'] = str_replace(array('[', ']'), array('(', ')'), $file['name']);
             $new_filename = framework\Context::getUser()->getID() . '_' . NOW . '_' . basename($file['name']);
             if (framework\Settings::getUploadStorage() == 'files')
             {
@@ -3307,7 +3308,7 @@ class Main extends framework\Action
         $comment = entities\Comment::getB2DBTable()->selectById($request['comment_id']);
         if ($comment instanceof entities\Comment)
         {
-            if (!$comment->canUserDeleteComment())
+            if (!$comment->canUserDelete(framework\Context::getUser()))
             {
                 $this->getResponse()->setHttpStatus(400);
                 return $this->renderJSON(array('error' => framework\Context::getI18n()->__('You are not allowed to do this')));
@@ -3437,10 +3438,10 @@ class Main extends framework\Action
 
                     framework\Context::setCurrentProject($issue->getProject());
 
-                    $comment_html = $this->getComponentHTML('main/comment', array('comment' => $comment, 'issue' => $issue, 'mentionable_target_type' => 'issue'));
+                    $comment_html = $this->getComponentHTML('main/comment', array('comment' => $comment, 'issue' => $issue, 'mentionable_target_type' => 'issue', 'comment_count_div' => 'viewissue_comment_count'));
                     break;
                 case entities\Comment::TYPE_ARTICLE:
-                    $comment_html = $this->getComponentHTML('main/comment', array('comment' => $comment, 'mentionable_target_type' => 'article'));
+                    $comment_html = $this->getComponentHTML('main/comment', array('comment' => $comment, 'mentionable_target_type' => 'article', 'comment_count_div' => 'article_comment_count'));
                     break;
                 default:
                     $comment_html = 'OH NO!';

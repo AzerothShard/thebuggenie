@@ -164,6 +164,14 @@
                     $this->board->clearSwimlaneIdentifier();
                     $this->board->clearSwimlaneFieldValues();
                 }
+                $details = $request['issue_field_details'];
+                if (isset($details['issuetype']))
+                {
+                    $this->board->setIssueFieldValues(explode(',', $details['issuetype']));
+                }
+                else {
+                    $this->board->clearIssueFieldValues();
+                }
                 $this->board->save();
 
                 return $this->renderJSON(array('component' => $this->getComponentHTML('agile/boardbox', array('board' => $this->board)), 'id' => $this->board->getID(), 'private' => $this->board->isPrivate(), 'backlog_search' => $this->board->getBacklogSearchIdentifier(), 'saved' => 'ok'));
@@ -787,7 +795,10 @@
                 }
             }
 
-            return $this->renderJSON(compact('ids', 'backlog_ids', 'epic_ids', 'milestone_id'));
+            \thebuggenie\core\framework\Context::loadLibrary('ui');
+            $whiteboard_url = make_url('agile_whiteboardissues', array('project_key' => $board->getProject()->getKey(), 'board_id' => $board->getID()));
+
+            return $this->renderJSON(compact('ids', 'backlog_ids', 'epic_ids', 'milestone_id', 'whiteboard_url'));
         }
 
     }
