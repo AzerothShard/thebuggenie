@@ -22,3 +22,7 @@ thebuggenie/test.php
 vendor/
 /composer.phar
 .directory
+
+/uploads
+/modules/mobile/
+/themes/oxygen/css/oxygen.css
