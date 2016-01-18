@@ -854,9 +854,7 @@
 
         public static function getDefaultVisibleColumns()
         {
-            // [AZTH]
-            return array('issuetype', 'title', 'assigned_to', 'posted_by', 'status', 'components', 'last_updated', 'comments');
-            // [/AZTH]
+            return array('title', 'assigned_to', 'status', 'resolution', 'last_updated', 'comments');
         }
 
     }
