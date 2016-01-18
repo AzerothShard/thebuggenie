@@ -432,7 +432,7 @@ class Main extends framework\Action
      */
     public function runInstallStep6(framework\Request $request)
     {
-        $installed_string = framework\Settings::getMajorVer() . '.' . framework\Settings::getMinorVer() . ', installed ' . date('d.m.Y H:i');
+        $installed_string = framework\Settings::getVersion() . ', installed ' . date('d.m.Y H:i');
 
         if (file_put_contents(THEBUGGENIE_PATH . 'installed', $installed_string) === false)
         {
@@ -588,6 +588,26 @@ class Main extends framework\Action
         $this->upgrade_complete = true;
     }
 
+    protected function _upgradeFrom4dot1dot5(framework\Request $request)
+    {
+        set_time_limit(0);
+
+        \thebuggenie\core\entities\tables\Issues::getTable()->upgrade(\thebuggenie\core\modules\installation\upgrade_415\Issue::getB2DBTable());
+        \thebuggenie\core\entities\tables\IssueSpentTimes::getTable()->upgrade(\thebuggenie\core\modules\installation\upgrade_415\IssueSpentTime::getB2DBTable());
+        \thebuggenie\core\entities\tables\IssueEstimates::getTable()->upgrade(\thebuggenie\core\modules\installation\upgrade_415\IssueEstimatesTable::getTable());
+
+        $this->upgrade_complete = true;
+    }
+
+    protected function _upgradeFrom4dot1dot6(framework\Request $request)
+    {
+        set_time_limit(0);
+
+        \thebuggenie\core\entities\tables\Projects::getTable()->upgrade(\thebuggenie\core\modules\installation\upgrade_416\Project::getB2DBTable());
+
+        $this->upgrade_complete = true;
+    }
+
     public function runUpgrade(framework\Request $request)
     {
         $version_info = explode(',', file_get_contents(THEBUGGENIE_PATH . 'installed'));
@@ -625,6 +645,10 @@ class Main extends framework\Action
                     $this->_upgradeFrom4dot1dot2($request);
                 case '4.1.3':
                     $this->_upgradeFrom4dot1dot3($request);
+                case '4.1.5':
+                    $this->_upgradeFrom4dot1dot5($request);
+                case '4.1.6':
+                    $this->_upgradeFrom4dot1dot6($request);
                 default:
                     $this->upgrade_complete = true;
                     break;

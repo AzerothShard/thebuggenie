@@ -153,6 +153,11 @@ class Main extends framework\Action
                     try
                     {
                         $issue->getWorkflow()->moveIssueToMatchingWorkflowStep($issue);
+                        // Currently if category is changed we want to regenerate permissions since category is used for granting user access.
+                        if ($issue->isCategoryChanged())
+                        {
+                            framework\Event::listen('core', 'thebuggenie\core\entities\Issue::save_pre_notifications', array($this, 'listen_issueCreate'));
+                        }
                         $issue->save();
                         framework\Context::setMessage('issue_saved', true);
                         $this->forward(framework\Context::getRouting()->generate('viewissue', array('project_key' => $issue->getProject()->getKey(), 'issue_no' => $issue->getFormattedIssueNo())));
@@ -397,6 +402,7 @@ class Main extends framework\Action
                             $notification->setIsRead(!$notification->isRead());
                             $notification->save();
                             $data['is_read'] = (int) $notification->isRead();
+                            $this->getUser()->markNotificationGroupedNotificationsRead($notification);
                         }
                         break;
                     case 'notificationsread':
@@ -1763,6 +1769,7 @@ class Main extends framework\Action
             $issue->setLockedFromProject($this->selected_project);
         }
 
+        framework\Event::listen('core', 'thebuggenie\core\entities\Issue::createNew_pre_notifications', array($this, 'listen_issueCreate'));
         $issue->save();
 
         if (isset($this->parent_issue))
@@ -1774,21 +1781,22 @@ class Main extends framework\Action
         if (isset($fields_array['component']) && $this->selected_component instanceof entities\Component)
             $issue->addAffectedComponent($this->selected_component);
 
-        if ($request->hasParameter('custom_issue_access') && $this->selected_project->permissionCheck('canlockandeditlockedissues'))
-        {
-            switch ($request->getParameter('issue_access'))
-            {
-                case 'public':
-                case 'public_category':
-                    $this->_unlockIssueAfter($request, $issue);
-                    break;
-                case 'restricted':
-                    $this->_lockIssueAfter($request, $issue);
-                    break;
-            }
-        }
-
         return $issue;
+    }
+
+    public function listen_issueCreate(framework\Event $event)
+    {
+        $request = framework\Context::getRequest();
+        $issue = $event->getSubject();
+
+        if ($issue->isUnlocked())
+        {
+            $this->_unlockIssueAfter($request, $issue);
+        }
+        else if ($issue->isLocked())
+        {
+            $this->_lockIssueAfter($request, $issue);
+        }
     }
 
     protected function _getMilestoneFromRequest($request)
@@ -1948,7 +1956,7 @@ class Main extends framework\Action
             return $this->renderText('invalid project');
         }
 
-        $fields_array = $this->selected_project->getReportableFieldsArray($request['issuetype_id']);
+        $fields_array = $this->selected_project->getReportableFieldsArray($request['issuetype_id'], true);
         $available_fields = entities\DatatypeBase::getAvailableFields();
         $available_fields[] = 'pain_bug_type';
         $available_fields[] = 'pain_likelihood';
@@ -2055,11 +2063,11 @@ class Main extends framework\Action
         {
             if ($request['timespent_manual'])
             {
-                $times = entities\Issue::convertFancyStringToTime($request['timespent_manual']);
+                $times = entities\Issue::convertFancyStringToTime($request['timespent_manual'], $issue);
             }
             else
             {
-                $times = array('points' => 0, 'hours' => 0, 'days' => 0, 'weeks' => 0, 'months' => 0);
+                $times = \thebuggenie\core\entities\common\Timeable::getZeroedUnitsWithPoints();
                 $times[$request['timespent_specified_type']] = $request['timespent_specified_value'];
             }
             $spenttime->setIssue($issue);
@@ -2068,6 +2076,7 @@ class Main extends framework\Action
         else
         {
             $times = array('points' => $request['points'],
+                'minutes' => $request['minutes'],
                 'hours' => $request['hours'],
                 'days' => $request['days'],
                 'weeks' => $request['weeks'],
@@ -2077,6 +2086,7 @@ class Main extends framework\Action
         }
         $times['hours'] *= 100;
         $spenttime->setSpentPoints($times['points']);
+        $spenttime->setSpentMinutes($times['minutes']);
         $spenttime->setSpentHours($times['hours']);
         $spenttime->setSpentDays($times['days']);
         $spenttime->setSpentWeeks($times['weeks']);
@@ -2182,6 +2192,7 @@ class Main extends framework\Action
                     if ($request->hasParameter('weeks')) $issue->setEstimatedWeeks($request['weeks']);
                     if ($request->hasParameter('days')) $issue->setEstimatedDays($request['days']);
                     if ($request->hasParameter('hours')) $issue->setEstimatedHours($request['hours']);
+                    if ($request->hasParameter('minutes')) $issue->setEstimatedMinutes($request['minutes']);
                     if ($request->hasParameter('points')) $issue->setEstimatedPoints($request['points']);
                 }
                 if ($request['do_save'])
@@ -2355,7 +2366,7 @@ class Main extends framework\Action
                                 if ($classname == '\\thebuggenie\\core\\entities\\Issuetype')
                                 {
                                     framework\Context::loadLibrary('ui');
-                                    $field['src'] = htmlspecialchars(framework\Context::getWebroot() . 'iconsets/' . framework\Settings::getThemeName() . '/' . $issue->getIssuetype()->getIcon() . '_small.png');
+                                    $field['src'] = htmlspecialchars(framework\Context::getWebroot() . 'images/' . $issue->getIssuetype()->getIcon() . '_small.png');
                                 }
 
                                 if (!$issue->$is_changed_function_name())
@@ -2619,7 +2630,7 @@ class Main extends framework\Action
                 break;
             case 'issuetype':
                 $issue->revertIssuetype();
-                $field = ($issue->getIssuetype() instanceof entities\Issuetype) ? array('id' => $issue->getIssuetype()->getID(), 'name' => $issue->getIssuetype()->getName(), 'src' => htmlspecialchars(framework\Context::getWebroot() . 'iconsets/' . framework\Settings::getThemeName() . '/' . $issue->getIssuetype()->getIcon() . '_small.png')) : array('id' => 0);
+                $field = ($issue->getIssuetype() instanceof entities\Issuetype) ? array('id' => $issue->getIssuetype()->getID(), 'name' => $issue->getIssuetype()->getName(), 'src' => htmlspecialchars(framework\Context::getWebroot() . 'images/' . $issue->getIssuetype()->getIcon() . '_small.png')) : array('id' => 0);
                 $visible_fields = ($issue->getIssuetype() instanceof entities\Issuetype) ? $issue->getProject()->getVisibleFieldsArray($issue->getIssuetype()->getID()) : array();
                 return $this->renderJSON(array('ok' => true, 'issue_id' => $issue->getID(), 'field' => $field, 'visible_fields' => $visible_fields));
                 break;
@@ -2710,10 +2721,11 @@ class Main extends framework\Action
                 $this->forward403($this->getI18n()->__("You don't have access to update the issue access policy"));
                 return;
             }
+
+            framework\Event::listen('core', 'thebuggenie\core\entities\Issue::save_pre_notifications', array($this, 'listen_issueSaveUnlock'));
             $issue->setLocked(false);
             $issue->setLockedCategory($request->hasParameter('public_category'));
             $issue->save();
-            $this->_unlockIssueAfter($request, $issue);
         }
         else
         {
@@ -2722,6 +2734,11 @@ class Main extends framework\Action
         }
 
         return $this->renderJSON(array('message' => $this->getI18n()->__('Issue access policy updated')));
+    }
+
+    public function listen_issueSaveUnlock(framework\Event $event)
+    {
+        $this->_unlockIssueAfter(framework\Context::getRequest(), $event->getSubject());
     }
 
     /**
@@ -2748,9 +2765,10 @@ class Main extends framework\Action
                 $this->forward403($this->getI18n()->__("You don't have access to update the issue access policy"));
                 return;
             }
+
+            framework\Event::listen('core', 'thebuggenie\core\entities\Issue::save_pre_notifications', array($this, 'listen_issueSaveLock'));
             $issue->setLocked();
             $issue->save();
-            $this->_lockIssueAfter($request, $issue);
         }
         else
         {
@@ -2759,6 +2777,11 @@ class Main extends framework\Action
         }
 
         return $this->renderJSON(array('message' => $this->getI18n()->__('Issue access policy updated')));
+    }
+
+    public function listen_issueSaveLock(framework\Event $event)
+    {
+        $this->_lockIssueAfter(framework\Context::getRequest(), $event->getSubject());
     }
 
     /**
@@ -2954,7 +2977,7 @@ class Main extends framework\Action
         return $this->renderJSON($status);
     }
 
-    public function runUpdateAttachments(framework\Request $request)
+    public function runUpdateAttachments(framework\Request $request, $cancel = false)
     {
         switch ($request['target'])
         {
@@ -2982,25 +3005,15 @@ class Main extends framework\Action
 
             if (! $file instanceof entities\File) continue;
 
-            $file->setDescription($description);
-            $file->save();
-            if (in_array($file_id, $saved_file_ids))
+            if ($cancel)
             {
-                if ($target instanceof entities\Issue)
-                {
-                    $comment = $target->attachFile($file, '', '', true);
-
-                    if ($comment instanceof entities\Comment) $comments = $this->getComponentHTML('main/comment', array('comment' => $comment, 'issue' => $target, 'mentionable_target_type' => 'issue', 'comment_count_div' => 'viewissue_comment_count')) . $comments;
-                }
-                else
-                {
-                    $target->attachFile($file);
-                }
+                if ($this->cancelAttachments($file_id, $saved_file_ids, $target, $file)) continue;
             }
             else
             {
-                $target->detachFile($file);
+                $comments = $this->updateAttachments($file, $description, $file_id, $saved_file_ids, $target, $comments);
             }
+
             if ($file->isImage()) {
                 $image_files[] = $this->getComponentHTML('main/attachedfile', array('base_id' => $base_id, 'mode' => $request['target'], $request['target'] => $target, $target_identifier => $target_id, 'file' => $file));
             }
@@ -3011,6 +3024,73 @@ class Main extends framework\Action
         $attachmentcount = ($request['target'] == 'issue') ? $target->countFiles() + $target->countLinks() : $target->countFiles();
 
         return $this->renderJSON(array('attached' => 'ok', 'container_id' => $container_id, 'files' => array_merge($files, $image_files), 'attachmentcount' => $attachmentcount, 'comments' => $comments));
+    }
+
+    /**
+     * @param $file
+     * @param $description
+     * @param $file_id
+     * @param $saved_file_ids
+     * @param $target
+     * @param $comments
+     * @return string
+     */
+    protected function updateAttachments($file, $description, $file_id, $saved_file_ids, $target, $comments)
+    {
+        $file->setDescription($description);
+        $file->save();
+        if (in_array($file_id, $saved_file_ids))
+        {
+            if ($target instanceof entities\Issue)
+            {
+                $comment = $target->attachFile($file, '', '', true);
+
+                if ($comment instanceof entities\Comment) $comments = $this->getComponentHTML('main/comment', array('comment' => $comment, 'issue' => $target, 'mentionable_target_type' => 'issue', 'comment_count_div' => 'viewissue_comment_count')) . $comments;
+            }
+            else
+            {
+                $target->attachFile($file);
+            }
+        }
+        else
+        {
+            $target->detachFile($file);
+        }
+        return $comments;
+    }
+
+    /**
+     * @param $file_id
+     * @param $saved_file_ids
+     * @param $target
+     * @param $file
+     */
+    protected function cancelAttachments($file_id, $saved_file_ids, $target, $file)
+    {
+        if (in_array($file_id, $saved_file_ids))
+        {
+            if ($target instanceof entities\Issue)
+            {
+                $existed = !tables\IssueFiles::getTable()->addByIssueIDandFileID($target->getID(), $file->getID(), false);
+            }
+            else
+            {
+                $existed = !\thebuggenie\modules\publish\entities\tables\ArticleFiles::getTable()->addByArticleIDandFileID($target->getID(), $file->getID(), false);
+            }
+
+            // Delete file if link with target doesn't exist
+            if (!$existed)
+            {
+                $file->delete();
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public function runCancelAttachments(framework\Request $request)
+    {
+        return $this->runUpdateAttachments($request, true);
     }
 
     public function runUploadFile(framework\Request $request)
@@ -3219,6 +3299,8 @@ class Main extends framework\Action
                 {
                     if ($isFile && \thebuggenie\core\framework\Settings::isUploadsDeliveryUseXsend()) {
                         $this->getResponse()->addHeader('X-Sendfile: ' . framework\Settings::getUploadsLocalpath() . $file->getRealFilename());
+                        $this->getResponse()->addHeader('X-Accel-Redirect: /files/' . $file->getRealFilename());
+
                         $this->getResponse()->renderHeaders($disableCache);
                     }
                     else
@@ -3700,7 +3782,8 @@ class Main extends framework\Action
                     break;
                 case 'permissions':
                     $options['key'] = $request['permission_key'];
-                    if ($details = framework\Context::getPermissionDetails($options['key']))
+                    $target_module = ($request['target_module'] !== 'core') ? $request['target_module'] : null;
+                    if ($details = framework\Context::getPermissionDetails($options['key'], null, $target_module))
                     {
                         $template_name = 'configuration/permissionspopup';
                         $options['mode'] = $request['mode'];
@@ -4627,11 +4710,11 @@ class Main extends framework\Action
         $this->getResponse()->setContentType('image/png');
         $this->getResponse()->setDecoration(\thebuggenie\core\framework\Response::DECORATE_NONE);
         $chain = str_split($_SESSION['activation_number'], 1);
-        $size = getimagesize(THEBUGGENIE_PATH . THEBUGGENIE_PUBLIC_FOLDER_NAME . DS . 'iconsets' . DS . framework\Settings::getIconsetName() . DS . 'numbers/0.png');
+        $size = getimagesize(THEBUGGENIE_PATH . DS . 'themes' . DS . framework\Settings::getThemeName() . DS . 'numbers/0.png');
         $captcha = imagecreatetruecolor($size[0] * sizeof($chain), $size[1]);
         foreach ($chain as $n => $number)
         {
-            $pic = imagecreatefrompng(THEBUGGENIE_PATH . THEBUGGENIE_PUBLIC_FOLDER_NAME . DS . 'iconsets' . DS . framework\Settings::getIconsetName() . DS . 'numbers/' . $number . '.png');
+            $pic = imagecreatefrompng(THEBUGGENIE_PATH . DS . 'themes' . DS . framework\Settings::getThemeName() . DS . "numbers/{$number}.png");
             imagecopymerge($captcha, $pic, $size[0] * $n, 0, 0, 0, imagesx($pic), imagesy($pic), 100);
             imagedestroy($pic);
         }

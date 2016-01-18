@@ -31,6 +31,7 @@
         const KEY_MAIN_MENU_LINKS = '_mainmenu_links';
         const KEY_I18N = '_i18n_';
         const KEY_TEXTPARSER_ISSUE_REGEX = 'thebuggenie\core\framework\helpers\TextParser::getIssueRegex';
+        const CLEAR_CACHE_KEY = 'KEY_';
 
         /**
          * Cache types APC, filesystem (default)
@@ -63,7 +64,9 @@
             else
             {
                 if (!file_exists(THEBUGGENIE_CACHE_PATH))
-                    throw new exceptions\CacheException('The cache directory is not writable', exceptions\CacheException::NO_FOLDER);
+                    if(!is_writable(dirname(THEBUGGENIE_CACHE_PATH))
+                        || !mkdir(THEBUGGENIE_CACHE_PATH))
+                        throw new exceptions\CacheException('The cache directory is not writable', exceptions\CacheException::NO_FOLDER);
 
                 if (!is_writable(THEBUGGENIE_CACHE_PATH))
                     throw new exceptions\CacheException('The cache directory is not writable', exceptions\CacheException::NOT_WRITABLE);
@@ -275,12 +278,12 @@
             $this->_prefix = $prefix;
         }
 
-        public function clearCacheKeys($keys)
+        public function clearCacheKeys($keys, $prepend_scope = true, $force = false)
         {
             foreach ($keys as $key)
             {
-                $this->delete($key);
-                $this->fileDelete($key);
+                $this->delete($key, $prepend_scope, $force);
+                $this->fileDelete($key, $prepend_scope, $force);
             }
         }
 
