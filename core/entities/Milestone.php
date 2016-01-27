@@ -352,6 +352,32 @@
             return $subtract_hours ? $minutes % 60 : $minutes;
         }
 
+        /**
+         * Returns the estimated hours and minutes formatted
+         *
+         * @param bool $append_minutes
+         * @param bool $subtract_hours
+         *
+         * @return integer|string
+         */
+        public function getHoursAndMinutesEstimated($append_minutes = false, $subtract_hours = false)
+        {
+            return \thebuggenie\core\entities\common\Timeable::formatHoursAndMinutes($this->getHoursEstimated($append_minutes), $this->getMinutesEstimated($subtract_hours));
+        }
+
+        /**
+         * Returns the spent hours and minutes formatted
+         *
+         * @param bool $append_minutes
+         * @param bool $subtract_hours
+         *
+         * @return integer|string
+         */
+        public function getHoursAndMinutesSpent($append_minutes = false, $subtract_hours = false)
+        {
+            return \thebuggenie\core\entities\common\Timeable::formatHoursAndMinutes($this->getHoursSpent($append_minutes), $this->getMinutesSpent($subtract_hours));
+        }
+
         public function clearEstimates()
         {
             $this->_hours = null;
@@ -843,7 +869,11 @@
             return ($this->getStartingDate() > 0);
         }
 
-        protected function _populateBurndownData()
+        /**
+         * @param bool $append_minutes
+         * @param bool $subtract_hours
+         */
+        protected function _populateBurndownData($append_minutes = false, $subtract_hours = false)
         {
             if ($this->_burndowndata === null)
             {
@@ -887,6 +917,29 @@
                     $burndown['hours'][$key] = $total_estimations_hours;
                     $prev_key = $key;
                 }
+
+                $total_estimations_minutes = array_sum($estimations['minutes']);
+                if (array_sum($spent_times['minutes']) > $total_estimations_minutes) $total_estimations_minutes = array_sum($spent_times['minutes']);
+                $prev_key = null;
+                foreach ($estimations['minutes'] as $key => $val)
+                {
+                    if (! is_null($prev_key) && (array_key_exists($prev_key, $spent_times['minutes'])))
+                    {
+                        $total_estimations_minutes -= $spent_times['minutes'][$prev_key];
+                    }
+                    else
+                    {
+                        if (isset($spent_times['minutes_spent_before']))
+                        {
+                            $total_estimations_minutes -= $spent_times['minutes_spent_before'];
+                        }
+                    }
+
+                    $burndown['minutes'][$key] = $total_estimations_minutes;
+                    if ($append_minutes) $burndown['hours'][$key] += (int) floor($total_estimations_minutes / 60);
+                    $prev_key = $key;
+                }
+
                 $total_estimations_points = array_sum($estimations['points']);
                 if (array_sum($spent_times['points']) > $total_estimations_points) $total_estimations_points = array_sum($spent_times['points']);
                 $prev_key = null;
@@ -908,13 +961,21 @@
                     $prev_key = $key;
                 }
 
+                if ($subtract_hours) $spent_times['minutes_spent_before'] = $spent_times['minutes_spent_before'] % 60;
+
                 $this->_burndowndata = array('estimations' => $estimations, 'spent_times' => $spent_times, 'burndown' => $burndown);
             }
         }
 
-        public function getBurndownData()
+        /**
+         * @param bool $append_minutes
+         * @param bool $subtract_hours
+         *
+         * @return array
+         */
+        public function getBurndownData($append_minutes = false, $subtract_hours = false)
         {
-            $this->_populateBurndownData();
+            $this->_populateBurndownData($append_minutes, $subtract_hours);
             return $this->_burndowndata;
         }
 
