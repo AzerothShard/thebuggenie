@@ -1059,12 +1059,7 @@ footer img {
 }
 
 .logindiv.openid_container {
-    width: 600px;
     float: right;
-}
-
-.logindiv.openid_container form {
-    width: 590px;
 }
 
 .login_popup h2.login_header {
