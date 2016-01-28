@@ -35,6 +35,7 @@
         const B2DB_TABLE_VERSION = 3;
         const B2DBNAME = 'projects';
         const ID = 'projects.id';
+        const ORDER = 'projects.order';
         const SCOPE = 'projects.scope';
         const NAME = 'projects.name';
         const KEY = 'projects.key';
@@ -142,6 +143,7 @@
             $crit->addWhere(self::SCOPE, framework\Context::getScope()->getID());
             $crit->addWhere(self::PARENT_PROJECT_ID, $id);
             $crit->addWhere(self::DELETED, false);
+            $crit->addOrderBy(self::ORDER);
 
             $res = $this->select($crit, false);
             return $res;
